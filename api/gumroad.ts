@@ -41,7 +41,7 @@ export default async (req: NowRequest, res: NowResponse) => {
       'Sec-Fetch-Site': 'same-origin'
     };
 
-    const proxyUrl = "http://B606539A:A13BB57207F1@tun-buhuph.qg.net:14446";
+    const proxyUrl = "http://911860910896074752:mEPDDTvL@http-dynamic-S03.xiaoxiangdaili.com:10030";
     const httpsAgent = new HttpsProxyAgent(proxyUrl);    // 执行代理请求
     const response = await axios.get(targetUrl, {
       headers,
