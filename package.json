@@ -2,6 +2,11 @@
   "repository": "https://github.com/vercel/examples.git",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
   "devDependencies": {
     "@types/node": "^17.0.45",
     "@vercel/node": "^2.15.10",

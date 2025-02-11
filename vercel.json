@@ -2,14 +2,14 @@
     "version": 2,
     "builds": [
       {
-        "src": "api/gumroad.ts",
+        "src": "api/**/*.ts",  
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "src": "/abc",
-        "dest": "/api/gumroad"
+        "src": "/(.*)", 
+        "dest": "/api/gumroad.ts"   
       }
     ]
   }
