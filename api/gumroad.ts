@@ -1,6 +1,8 @@
 // api/gumroad.ts
 import { NowRequest, NowResponse } from '@vercel/node';
 import axios, { AxiosResponseHeaders } from 'axios';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 
 // 类型定义
 interface PathMap {
@@ -39,9 +41,11 @@ export default async (req: NowRequest, res: NowResponse) => {
       'Sec-Fetch-Site': 'same-origin'
     };
 
-    // 执行代理请求
+    const proxyUrl = "http://B606539A:A13BB57207F1@tun-buhuph.qg.net:14446";
+    const httpsAgent = new HttpsProxyAgent(proxyUrl);    // 执行代理请求
     const response = await axios.get(targetUrl, {
       headers,
+      httpsAgent,
       maxRedirects: 0,
       validateStatus: () => true
     });
