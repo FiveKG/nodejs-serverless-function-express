@@ -1,81 +1,40 @@
-// api/gumroad.ts
-import { NowRequest, NowResponse } from '@vercel/node';
-import axios, { AxiosResponseHeaders } from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+// 文件：/api/redirect.js
+const axios = require('axios');
+const HttpsProxyAgent = require('https-proxy-agent');
 
+// 设置你的代理地址
+const proxyUrl = 'http://B606539A:A13BB57207F1@tun-buhuph.qg.net:14446';
+// 创建 https-proxy-agent 实例
+const agent = new HttpsProxyAgent(proxyUrl);
 
-// 类型定义
-interface PathMap {
-  [key: string]: string;
-}
+module.exports = async (req:any, res:any) => {
+  // 可选：通过 axios 发起请求，比如用于点击统计
+  // try {
+  //   await axios.get('https://example.com/tracking', {
+  //     // 使用自定义的代理 agent，同时禁用 axios 内置代理配置
+  //     httpsAgent: agent,
+  //     proxy: false
+  //   });
+  // } catch (error) {
+  //   console.error('Tracking 请求出错：', error);
+  // }
 
-interface EnhancedHeaders extends Record<string, string> {
-  'Host': string;
-  'Referer': string;
-  'User-Agent': string;
-  'X-Forwarded-For': string;
-  'Accept-Language': string;
-  'Sec-Fetch-Dest': string;
-  'Sec-Fetch-Mode': string;
-  'Sec-Fetch-Site': string;
-}
-
-const pathMap: PathMap = {
-  '/l/neswv': 'https://leooeoj.gumroad.com/l/neswv',
-};
-
-export default async (req: NowRequest, res: NowResponse) => {
-  try {
-    const targetPath = new URL(req.url || '', 'http://localhost').pathname;
-    const targetUrl = pathMap[targetPath] || 'https://leooeoj.gumroad.com';
-
-    // 构建增强请求头
-    const headers: EnhancedHeaders = {
-      'Host': new URL(targetUrl).hostname,
-      'Referer': 'https://gumroad.com/',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-      'X-Forwarded-For': Array.isArray(req.headers['x-real-ip']) ? req.headers['x-real-ip'][0] : req.headers['x-real-ip'] || req.socket.remoteAddress || '1.1.1.1',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'same-origin'
-    };
-
-    const proxyUrl = "http://911860910896074752:mEPDDTvL@http-dynamic-S03.xiaoxiangdaili.com:10030";
-    const httpsAgent = new HttpsProxyAgent(proxyUrl);    // 执行代理请求
-    const response = await axios.get(targetUrl, {
-      headers,
-      httpsAgent,
-      maxRedirects: 0,
-      validateStatus: () => true
-    });
-
-    // 处理重定向
-    if ([301, 302, 303, 307, 308].includes(response.status)) {
-      const location = response.headers.location;
-      if (location) {
-        return res.redirect(response.status, location);
-      }
-    }
-
-    // 同步响应头
-    const excludedHeaders = ['connection', 'content-encoding'];
-    Object.entries(response.headers as AxiosResponseHeaders).forEach(([key, value]) => {
-      if (!excludedHeaders.includes(key.toLowerCase())) {
-        res.setHeader(key, Array.isArray(value) ? value[0] : value);
-      }
-    });
-
-    // 设置安全头
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-
-    return res.status(response.status).send(response.data);
-  } catch (error) {
-    console.error('Proxy Error:', error);
-    return res.status(500).json({
-      error: 'Proxy Error',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
+  // 从请求 URL 中提取 slug，例如当请求为 "/l/neswv" 时，slug 为 "neswv"
+  const match = req.url.match(/^\/l\/([^\/\?]+)(\?.*)?$/);
+  const slug = match ? match[1] : null;
+  console.log("path:", slug)
+  if (!slug) {
+    res.statusCode = 404;
+    res.end('Not Found');
+    return;
   }
+
+  // 构造目标地址
+  const targetUrl = `https://leooeoj.gumroad.com/l/${slug}`;
+
+  // 返回 302 重定向
+  res.writeHead(302, {
+    Location: targetUrl
+  });
+  res.end();
 };
